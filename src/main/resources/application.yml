@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active: dev
+  jackson:
+    time-zone: GMT+8
+    mapper:
+      accept-case-insensitive-enums: true
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        ddl-auto: update
+        jdbc:
+          batch_size=100:
+        order_inserts: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        type:
+          binder:
+            log_bind_param: true # 显示绑定参数
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug        # 显示 SQL 语句
+        type:
+          descriptor:
+            sql: trace # 显示SQL的绑定参数

@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:mysql://rm-bp12to1t0uo7cf1u9qo.mysql.rds.aliyuncs.com:3306/ftq?useSSL=false&serverTimezone=Asia/Shanghai
+    username: cGbvnRZcxLRl5sp
+    password: cGbvnRZcxLRl5sp
