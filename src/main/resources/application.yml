@@ -25,3 +25,9 @@ logging:
         type:
           descriptor:
             sql: trace # 显示SQL的绑定参数
+zpay:
+  pid: 2025071018032699
+  secretKey: kp5GG9c0HLPCmipoBH89e5INTPzR9IUO
+  cid: 9596
+
+
