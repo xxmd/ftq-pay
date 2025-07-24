@@ -48,7 +48,7 @@ public class ZPayController {
 
     @PostMapping("/redirectPay")
     @ApiOperation("跳转链接支付")
-    public String redirectPay(@RequestBody ZPayOrder zPayOrder) {
+    public String redirectPay(@RequestBody @Valid ZPayOrder zPayOrder) {
         Map<String, String> params = new TreeMap<>();
         params.put("name", zPayOrder.getName());
         params.put("money", String.valueOf(zPayOrder.getMoney()));
@@ -57,7 +57,26 @@ public class ZPayController {
         params.put("notify_url", "notify_url");
         params.put("pid", pid);
         params.put("cid", cid);
-        params.put("return_url", "return_url");
+        params.put("return_url", "https://baidu.c");
+        String preParams = concatParams(params) + secretKey;
+        String signature = md5(preParams);
+        params.put("sign", signature);
+        params.put("sign_type", "MD5");
+        return "https://z-pay.cn/submit.php?" + concatParams(params);
+    }
+
+    @PostMapping("/redirectPay/test")
+    @ApiOperation("跳转链接支付")
+    public String redirectPayTest(@RequestBody @Valid ZPayOrder zPayOrder) {
+        Map<String, String> params = new TreeMap<>();
+        params.put("name", zPayOrder.getName());
+        params.put("money", String.valueOf(zPayOrder.getMoney()));
+        params.put("type", zPayOrder.getType().getValue());
+        params.put("out_trade_no", String.valueOf(System.currentTimeMillis()));
+        params.put("notify_url", zPayOrder.getNotifyUrl());
+        params.put("pid", pid);
+        params.put("cid", cid);
+        params.put("return_url", zPayOrder.getReturnUrl());
         String preParams = concatParams(params) + secretKey;
         String signature = md5(preParams);
         params.put("sign", signature);
