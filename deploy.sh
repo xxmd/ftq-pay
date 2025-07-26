@@ -95,18 +95,16 @@ else
 
     # 插入 location 到第一个 server 块内
     awk -v block="$LOCATION_BLOCK" '
-      BEGIN { inside_server=0 }
+      # 记录是否刚匹配到 location /
       {
-        # 进入 server 块
-        if ($0 ~ /^[[:space:]]*server[[:space:]]*\{/)
-          inside_server=1
-
-        # server 块结束时插入 location 配置
-        if (inside_server && $0 ~ /^[[:space:]]*\}/) {
-          print block
-          inside_server=0
-        }
         print
+        if ($0 ~ /^[[:space:]]*location[[:space:]]+\/[[:space:]]*\{[[:space:]]*$/) {
+          getline next_line
+          print next_line
+          # 紧跟着 location / {} 之后插入 block
+          print block
+          next
+        }
       }
     ' "$NGINX_CONF" > "${NGINX_CONF}.tmp" && mv "${NGINX_CONF}.tmp" "$NGINX_CONF"
 
