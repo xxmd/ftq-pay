@@ -30,6 +30,9 @@ mvn clean package -DskipTests
 ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
 VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
+# 构建docker镜像
+docker build -t ${ARTIFACT_ID}:${VERSION} .
+
 # 停止并删除已存在的容器（如果存在）
 if docker ps -a --format '{{.Names}}' | grep -Eq "^${ARTIFACT_ID}$"; then
   echo "停止并删除已有容器：$ARTIFACT_ID"
