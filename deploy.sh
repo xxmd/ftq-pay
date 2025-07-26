@@ -86,7 +86,15 @@ EOF
 
 echo "=== 更新 nginx 配置 ==="
 if grep -q "location /$ARTIFACT_ID/" "$NGINX_CONF"; then
-    echo "location /$ARTIFACT_ID/ 已存在，跳过添加"
+    echo "location /$ARTIFACT_ID/ 已存在，修改端口..."
+
+    # 用 sed 替换 proxy_pass 中的端口
+    # 匹配 proxy_pass http://localhost:旧端口/$ARTIFACT_ID/;
+    # 替换成 proxy_pass http://localhost:$NEW_PORT/$ARTIFACT_ID/;
+
+    sed -i -r "s|(proxy_pass http://localhost:)[0-9]+(/$ARTIFACT_ID/;)|\1$NEW_PORT\2|" "$NGINX_CONF"
+
+    echo "端口修改完成"
 else
     echo "location /$ARTIFACT_ID/ 不存在，添加配置..."
 
