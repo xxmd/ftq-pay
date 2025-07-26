@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euxo pipefail
 
 NGINX_CONF="/etc/nginx/nginx.conf"
 
