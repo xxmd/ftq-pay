@@ -10,7 +10,7 @@ RUN ln -snf /usr/share/zoneinfo/$TimeZone /etc/localtime && echo $TimeZone > /et
 WORKDIR /app
 
 # 复制构建好的 JAR 文件到容器中
-COPY target/ftq-pay-1.0.0.jar app.jar
+COPY target/*.jar app.jar
 
 # 设置环境变量（默认为开发环境）
 ENV SPRING_PROFILES_ACTIVE=prod
