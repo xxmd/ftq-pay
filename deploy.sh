@@ -92,7 +92,7 @@ if grep -q "location /$ARTIFACT_ID/" "$NGINX_CONF"; then
     # 匹配 proxy_pass http://localhost:旧端口/$ARTIFACT_ID/;
     # 替换成 proxy_pass http://localhost:$NEW_PORT/$ARTIFACT_ID/;
 
-    sed -i -r "s|(proxy_pass http://localhost:)[0-9]+(/$ARTIFACT_ID/;)|\1$NEW_PORT\2|" "$NGINX_CONF"
+    sed -i -r "s|(proxy_pass http://localhost:)[0-9]+(/$ARTIFACT_ID/;)|\1$HOST_PORT\2|" "$NGINX_CONF"
 
     echo "端口修改完成"
 else
