@@ -68,7 +68,7 @@ fi
 echo "Docker 宿主机端口：$HOST_PORT"
 
 # 生成动态 nginx 配置
-read -r -d '' LOCATION_BLOCK << EOF
+LOCATION_BLOCK=$(cat <<EOF
 location /$ARTIFACT_ID/ {
     proxy_pass http://localhost:$HOST_PORT/$ARTIFACT_ID/;
 
@@ -81,6 +81,8 @@ location /$ARTIFACT_ID/ {
     proxy_redirect default;
 }
 EOF
+)
+
 
 echo "=== 更新 nginx 配置 ==="
 if grep -q "location /$ARTIFACT_ID/" "$NGINX_CONF"; then
