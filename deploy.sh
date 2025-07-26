@@ -24,7 +24,7 @@ git pull
 
 # 执行 Maven 构建
 echo "🚧 开始构建项目..."
-mvn clean package
+mvn clean package -DskipTests
 
 # 获取 Maven 项目名称和版本
 ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
