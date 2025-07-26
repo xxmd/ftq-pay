@@ -18,7 +18,7 @@ public class DefaultController {
     @Value("${project.version:unknown}")
     private String projectVersion;
 
-    @GetMapping("/")
+    @GetMapping("")
     public ProjectInfo hello() {
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         return new ProjectInfo(projectName, projectVersion, date);
