@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
@@ -28,5 +29,4 @@ public class OrderInfo extends BaseEntity {
     // 订单状态
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
-
 }

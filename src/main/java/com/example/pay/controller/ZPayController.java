@@ -2,12 +2,15 @@ package com.example.pay.controller;
 
 import com.example.pay.dao.OrderInfoRepository;
 import com.example.pay.entity.OrderInfo;
+import com.example.pay.entity.ZPayCallback;
 import com.example.pay.entity.ZPayOrder;
+import com.example.pay.entity.constants.StringConstants;
 import com.example.pay.entity.enums.OrderStatus;
 import com.example.pay.entity.enums.PayChannel;
 import com.example.pay.generator.SerialNumberGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -54,7 +57,22 @@ public class ZPayController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String json = mapper.writeValueAsString(params);
-            logger.info("ZPay回调参数信息: {}", json);
+            logger.info("原始ZPay回调参数信息: {}", json);
+            mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+            ZPayCallback zPayCallback = mapper.convertValue(params, ZPayCallback.class);
+            String serialNumber = zPayCallback.getOutTradeNo();
+            String tradeStatus = zPayCallback.getTradeStatus();
+            if (StringConstants.TRADE_STATUS_SUCCESS.equals(tradeStatus)) {
+                OrderInfo daoOrderInfo = orderInfoRepository.findBySerialNumber(serialNumber);
+                if (daoOrderInfo == null) {
+                    logger.error("ZPay支付回调中序列号：{} 在数据库中不存在", serialNumber);
+                } else {
+                    daoOrderInfo.setOrderStatus(OrderStatus.PAYED);
+                    orderInfoRepository.save(daoOrderInfo);
+                }
+            } else {
+                logger.error("ZPay支付回调中订单状态参数为: {}", tradeStatus);
+            }
         } catch (JsonProcessingException e) {
             logger.error("ZPay回调参数序列化失败", e);
         }
