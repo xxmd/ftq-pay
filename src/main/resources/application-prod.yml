@@ -1,5 +1,12 @@
 spring:
   datasource:
-    url: jdbc:mysql://rm-bp12to1t0uo7cf1u9qo.mysql.rds.aliyuncs.com:3306/ftq?useSSL=false&serverTimezone=Asia/Shanghai
-    username: cGbvnRZcxLRl5sp
-    password: cGbvnRZcxLRl5sp
+    url: jdbc:mysql://dev.ftq.ink:3306/ftq_pay?useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 3kk67RYnL6UtZjU
+  redis:
+    host: dev.ftq.ink
+    port: 6379
+    password: 3kk67RYnL6UtZjU # 如果没有密码可以省略
+    database: 0
+server:
+  hostname: dev.ftq.ink

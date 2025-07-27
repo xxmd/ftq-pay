@@ -1,19 +1,25 @@
 package com.example.pay.controller;
 
-import com.example.pay.entity.ZPayCallback;
+import com.example.pay.dao.OrderInfoRepository;
+import com.example.pay.entity.OrderInfo;
 import com.example.pay.entity.ZPayOrder;
+import com.example.pay.entity.enums.OrderStatus;
+import com.example.pay.entity.enums.PayChannel;
+import com.example.pay.generator.SerialNumberGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -33,6 +39,15 @@ public class ZPayController {
     @Value("${zpay.cid}")
     private String cid;
 
+    @Value("${server.hostname}")
+    private String hostname;
+
+    @Autowired
+    private SerialNumberGenerator serialNumberGenerator;
+
+    @Autowired
+    private OrderInfoRepository orderInfoRepository;
+
     @GetMapping("/callback")
     @ApiOperation("ZPay支付回调")
     public String callback(@RequestParam Map<String, String> params) {
@@ -46,34 +61,16 @@ public class ZPayController {
         return "success";
     }
 
-    @PostMapping("/redirectPay")
-    @ApiOperation("跳转链接支付")
-    public String redirectPay(@RequestBody @Valid ZPayOrder zPayOrder) {
+    @PostMapping("/geneRedirectPayLink")
+    @ApiOperation("生成跳转链接支付")
+    public String geneRedirectPayLink(@RequestBody @Valid ZPayOrder zPayOrder) {
         Map<String, String> params = new TreeMap<>();
         params.put("name", zPayOrder.getName());
         params.put("money", String.valueOf(zPayOrder.getMoney()));
         params.put("type", zPayOrder.getType().getValue());
-        params.put("out_trade_no", String.valueOf(System.currentTimeMillis()));
-        params.put("notify_url", "notify_url");
-        params.put("pid", pid);
-        params.put("cid", cid);
-        params.put("return_url", "https://baidu.com");
-        String preParams = concatParams(params) + secretKey;
-        String signature = md5(preParams);
-        params.put("sign", signature);
-        params.put("sign_type", "MD5");
-        return "https://z-pay.cn/submit.php?" + concatParams(params);
-    }
-
-    @PostMapping("/redirectPay/test")
-    @ApiOperation("跳转链接支付")
-    public String redirectPayTest(@RequestBody @Valid ZPayOrder zPayOrder) {
-        Map<String, String> params = new TreeMap<>();
-        params.put("name", zPayOrder.getName());
-        params.put("money", String.valueOf(zPayOrder.getMoney()));
-        params.put("type", zPayOrder.getType().getValue());
-        params.put("out_trade_no", String.valueOf(System.currentTimeMillis()));
-        params.put("notify_url", zPayOrder.getNotifyUrl());
+        String serialNumber = serialNumberGenerator.generateSerialNumber();
+        params.put("out_trade_no", serialNumber);
+        params.put("notify_url", String.format(Locale.US, "https://%s/ftq-pay/zpay/callback", hostname));
         params.put("pid", pid);
         params.put("cid", cid);
         params.put("return_url", zPayOrder.getReturnUrl());
@@ -81,9 +78,22 @@ public class ZPayController {
         String signature = md5(preParams);
         params.put("sign", signature);
         params.put("sign_type", "MD5");
+
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setPayChannel(PayChannel.ZPAY);
+        orderInfo.setSerialNumber(serialNumber);
+        orderInfo.setProductName(zPayOrder.getName());
+        orderInfo.setProductPrice(zPayOrder.getMoney());
+        orderInfo.setOrderStatus(OrderStatus.CREATED);
+        orderInfoRepository.save(orderInfo);
         return "https://z-pay.cn/submit.php?" + concatParams(params);
     }
 
+    /**
+     * 拼接请求参数
+     * @param params 请求参数
+     * @return
+     */
     private String concatParams(Map<String, String> params) {
         if (params == null || params.isEmpty()) {
             return "";
@@ -91,6 +101,11 @@ public class ZPayController {
         return params.entrySet().stream().map(it -> it.getKey() + "=" + it.getValue()).collect(Collectors.joining("&"));
     }
 
+    /**
+     * md5加密
+     * @param input 输入字符串
+     * @return
+     */
     public static String md5(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
