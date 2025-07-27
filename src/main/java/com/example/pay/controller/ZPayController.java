@@ -35,10 +35,10 @@ public class ZPayController {
 
     @GetMapping("/callback")
     @ApiOperation("ZPay支付回调")
-    public String callback(@ModelAttribute @Valid ZPayCallback zPayCallback) {
+    public String callback(@RequestParam Map<String, String> params) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(zPayCallback);
+            String json = mapper.writeValueAsString(params);
             logger.info("ZPay回调参数信息: {}", json);
         } catch (JsonProcessingException e) {
             logger.error("ZPay回调参数序列化失败", e);
@@ -57,7 +57,7 @@ public class ZPayController {
         params.put("notify_url", "notify_url");
         params.put("pid", pid);
         params.put("cid", cid);
-        params.put("return_url", "https://baidu.c");
+        params.put("return_url", "https://baidu.com");
         String preParams = concatParams(params) + secretKey;
         String signature = md5(preParams);
         params.put("sign", signature);

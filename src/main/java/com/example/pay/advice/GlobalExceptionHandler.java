@@ -16,11 +16,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public AjaxResult handleException(Exception e) {
+        logger.error("兜底异常处理", e);
         return AjaxResult.error(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public AjaxResult handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        logger.error("参数异常处理", e);
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())

@@ -17,7 +17,7 @@ public class ZPayCallback {
 
     @ApiModelProperty(value = "商品名称", required = true, notes = "商品名称不超过100字", example = "iphone")
     @NotEmpty(message = "商品名称[value]参数不能为空")
-    private String value;
+    private String name;
 
     @ApiModelProperty(value = "订单金额", required = true, notes = "最多保留两位小数", example = "1.23")
     @NotNull(message = "订单金额[money]参数不能为空")
